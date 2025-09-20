@@ -1,0 +1,268 @@
+{
+  "name": "Automated Lead Nurturing System",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "88faad3e-c63d-4bed-b10d-26fd4d5caf4f",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2512,
+        -416
+      ],
+      "id": "431fe827-9232-4846-b194-5b08261a0f5f",
+      "name": "Webhook",
+      "webhookId": "88faad3e-c63d-4bed-b10d-26fd4d5caf4f"
+    },
+    {
+      "parameters": {
+        "url": "https://api.hunter.io/v2/email-verifier",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "b72901343724e597cbc13c5791921fcca85ef209"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.body.form_response.answers[3].email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2352,
+        -416
+      ],
+      "id": "6205f1d2-e034-4dd3-8bbc-42b1d55ec157",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0f6f514d-277e-4b73-ba5d-003f8250f02e",
+              "leftValue": "={{ $json.data.score }}",
+              "rightValue": 50,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2192,
+        -416
+      ],
+      "id": "ffe7b89b-62fe-4460-b1ec-5db5f1d67081",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ $json.data.email }}",
+        "additionalFields": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.1,
+      "position": [
+        -1968,
+        -512
+      ],
+      "id": "d23a3360-8602-419b-abed-2a05d1a0b809",
+      "name": "Create or update a contact",
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "24YrWuQLHdhplVaP",
+          "name": "HubSpot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('If').item.json.data.email }}",
+        "subject": "Welcome to chebbi Company",
+        "emailType": "text",
+        "message": "=welcome {{ $('If').item.json.data.email }} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1792,
+        -512
+      ],
+      "id": "da7b3983-03c4-45a0-8e90-68881903a55d",
+      "name": "Send a message",
+      "webhookId": "8607314f-d6ca-45f2-845e-3c901ffecb8a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "n1OPtYOedTtadOTC",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2512,
+        -592
+      ],
+      "id": "a4083b36-b07e-4d42-9f2e-3c3ee79084a3",
+      "name": "Telegram Trigger",
+      "webhookId": "2d5fa395-26ae-4296-8a82-ac2ee5ad3797",
+      "credentials": {
+        "telegramApi": {
+          "id": "KfcrBdqBKkCfNRN9",
+          "name": "CompanyBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7694769118",
+        "text": "=Alert: Invalid lead email submitted. {{ $json.data.email }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1840,
+        -336
+      ],
+      "id": "a51015b6-e002-4e06-9539-d1242883cae7",
+      "name": "Send a text message",
+      "webhookId": "d3316ff8-cd2f-41f9-8d8b-f67a5b0957f7",
+      "credentials": {
+        "telegramApi": {
+          "id": "KfcrBdqBKkCfNRN9",
+          "name": "CompanyBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Main Workflow",
+        "height": 496,
+        "width": 960
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2560,
+        -672
+      ],
+      "typeVersion": 1,
+      "id": "c9c616a8-90d8-4a5a-95ae-fe9e30bce37a",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create or update a contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a contact": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "mDHZOZqspim6E2CQ"
+  },
+  "versionId": "2783f4aa-1fee-48ae-a0c7-8bcd655dbc40",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9c6a64b8921c47ae75cec6fc242769daf8a973c74dfc365b562ebecb01a64781"
+  },
+  "id": "WiPI0Jy38gObfOA7",
+  "tags": [
+    {
+      "createdAt": "2025-09-18T08:47:18.001Z",
+      "updatedAt": "2025-09-18T08:47:18.001Z",
+      "id": "H3MAZZCzICFrxfEk",
+      "name": "02workflow"
+    }
+  ]
+}

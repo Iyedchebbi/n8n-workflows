@@ -1,0 +1,324 @@
+{
+  "name": "Ai News",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        -48
+      ],
+      "id": "711ae4dd-22f1-4966-b238-a5037388b220",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1056,
+        192
+      ],
+      "id": "0188bbd4-cb1a-4424-ba6e-66f6f9333b52",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://blogs.nvidia.com/blog/category/deep-learning/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -720,
+        48
+      ],
+      "id": "8a946afc-89c9-44f8-a3d5-b466ad10c031",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        48
+      ],
+      "id": "9793e93c-12a8-4b6f-838e-057f26daf29d",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Title :\n  {{ $json.title }}\nLink URL : {{ $json.link }}\nContent snippert : {{ $json['content:encodedSnippet'] }}\n\n"
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "=you are an expert news analyser. Tools :  Jina Ai Reader : provide a url to get back the article  response format :  Summarized content with bullet points. -Language english -Dont write Here's the summary, start with an interresting engaging hook instead. -limits characters of (3500)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        48
+      ],
+      "id": "e1167473-e6c6-4937-8216-564b68988897",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CXnOw1wAsQvmBKJt",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.jinaAiTool",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        272
+      ],
+      "id": "297f0a4e-5f70-46c8-8490-2b397bcdd6f8",
+      "name": "Read URL content in Jina AI",
+      "credentials": {
+        "jinaAiApi": {
+          "id": "ZPlRroIrAYNxuIP6",
+          "name": "Jina AI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "chebbiiyad@gmail.com",
+        "subject": "Ai News summary",
+        "emailType": "text",
+        "message": "={{ $json.messageBody }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        192
+      ],
+      "id": "7e5f4f98-2f41-4207-9c3c-f291442906ca",
+      "name": "Send a message",
+      "webhookId": "dcf30cbc-2c43-4034-8791-7a75b9ed39fb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "n1OPtYOedTtadOTC",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "all_summaries",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        160,
+        48
+      ],
+      "id": "c4dd13c3-e85f-4426-aa1b-2de936ced4da",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "const summaries = items[0].json.all_summaries;\n\nlet body = '';\nsummaries.forEach((summary, index) => {\n  const text = summary.content.parts?.[0]?.text || '';\n  body += `--- Summary ${index + 1} ---\\n\\n${text}\\n\\n\\n`;\n});\n\n// Output only the message body\nreturn [\n  {\n    json: {\n      messageBody: body\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        -48
+      ],
+      "id": "aa054d4c-9a74-4286-a28c-7292a1306968",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "137a9ece-529c-4f7d-b7cf-b6cc76d1e54b",
+              "name": "title",
+              "value": "={{ $('RSS Read').item.json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "0b9d55a4-02f6-458d-8edf-b6d70a74a549",
+              "name": "link",
+              "value": "={{ $('RSS Read').item.json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "93bb0dc4-dc88-4991-9c51-fe80afc08512",
+              "name": "content.parts[0].text",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        48
+      ],
+      "id": "d97e0be8-0a98-4286-866e-506f68868bf6",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read URL content in Jina AI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Message a model",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7e027e6c-a93f-4ab2-af01-0e33940c7cc7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9c6a64b8921c47ae75cec6fc242769daf8a973c74dfc365b562ebecb01a64781"
+  },
+  "id": "ObVBhGZ3R28G1CGC",
+  "tags": []
+}

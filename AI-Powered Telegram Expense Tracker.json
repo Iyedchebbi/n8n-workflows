@@ -1,0 +1,569 @@
+{
+  "name": "TelegramFinanceAssistant",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -656,
+        -48
+      ],
+      "id": "3187beed-fd6f-4b9b-8a74-009d647eabab",
+      "name": "Telegram Trigger",
+      "webhookId": "ecd4c6c7-7f55-46ff-b955-b16a946bdc25",
+      "credentials": {
+        "telegramApi": {
+          "id": "suMM9xOcDO5uNJc6",
+          "name": "financeBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "5773e3e9-677f-4f8e-a4a8-e8e854f23ab6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "68336464-4ee3-4f48-9a3a-3d7f156050a5",
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Voice"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -432,
+        -48
+      ],
+      "id": "d7419727-d617-4977-b8e8-eff777537d37",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        48
+      ],
+      "id": "d459c3f9-b661-4de5-b2db-6c5b4a219160",
+      "name": "Get a file",
+      "webhookId": "76e52fe1-1ea7-4af8-811c-6d6cc4693059",
+      "credentials": {
+        "telegramApi": {
+          "id": "suMM9xOcDO5uNJc6",
+          "name": "financeBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "30bf0c99-39a4-476a-b523-ae183d25ae09",
+              "name": "message.text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        -144
+      ],
+      "id": "9db49361-4f1b-40c1-bb13-33058ef044e7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "065f42f0-c339-4f67-8426-dc532c05bfdf",
+              "name": "content.parts[0].text",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        48
+      ],
+      "id": "4af6c038-48b3-4ab7-99b7-7dfce3b685d7",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}{{ $json.content.parts[0].text }}",
+        "options": {
+          "systemMessage": "<system_prompt>\nYOU ARE A SIMPLE FINANCIAL TELEGRAM BOT.  \nYOU MUST MAINTAIN A PERSISTENT SHEET WITH THESE COLUMNS:\n1. DATE\n2. CATEGORY\n3. AMOUNT\n4. DETAILS\n\n###INSTRUCTIONS###\n\n- WHEN USER SENDS AN EXPENSE OR INCOME:\n  • Extract DATE (default = today), CATEGORY, AMOUNT, DETAILS.  \n  • Append a new row to the persistent sheet.  \n  • Reply with exactly one line:  \n    ✅ *تم الحفظ بنجاح*  \n\n- WHEN USER ASKS TO SEE TODAY’S SPENDING:\n  • FILTER all rows that match today’s DATE.  \n  • CALCULATE the SUM of all AMOUNT values for that date.  \n  • Reply with exactly one line:  \n    📊 *هذا ما صرفته اليوم: [TOTAL]*  \n\n- DATA MUST ALWAYS BE STORED IN THE SHEET AND PERSIST ACROSS INTERACTIONS.  \n- EVEN IF MULTIPLE ROWS EXIST FOR THE SAME DAY, YOU MUST SUM THEM ALL.  \n\n###CHAIN OF THOUGHTS###\n\n1. UNDERSTAND: Is it a save request or a retrieve request?  \n2. PARSE: For save → extract {DATE, CATEGORY, AMOUNT, DETAILS}. For retrieve → detect the requested date (default = today).  \n3. PROCESS: If save → append row. If retrieve → filter rows by date, then sum all AMOUNT values.  \n4. FINAL ANSWER: Always one line only.  \n\n###WHAT NOT TO DO###\n\n- NEVER RETURN TABLES OR MULTILINE OUTPUT.  \n- NEVER SHOW RAW SHEET DATA OR JSON.  \n- NEVER OMIT DATE, CATEGORY, AMOUNT, DETAILS IN STORAGE.  \n- NEVER RETURN ONLY THE LAST ENTRY INSTEAD OF THE SUM.  \n- NEVER FAIL TO CONFIRM SAVING WITH \"تم الحفظ بنجاح\".  \n- NEVER FAIL TO RETURN THE SUM TOTAL WHEN ASKED FOR TODAY’S SPENDING.  \n\n###FEW-SHOT EXAMPLES###\n\n**User:** \"Food 20 lunch\"  \n**Bot:** ✅ *تم الحفظ بنجاح*  \n\n**User:** \"Transport 10 bus ticket\"  \n**Bot:** ✅ *تم الحفظ بنجاح*  \n\n**User:** \"What did I spend today?\"  \n**Bot:** 📊 *هذا ما صرفته اليوم: 30*  \n</system_prompt>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        -48
+      ],
+      "id": "0c8d6e90-3d90-42a0-b99c-0b6cf4aa5920",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        464,
+        176
+      ],
+      "id": "91deafc0-6346-4429-84ca-02334a94ed91",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "ehwJvRGrJp9K885C",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        16,
+        48
+      ],
+      "id": "ec2adba4-cdd7-4db7-8efe-38f42fc1dce8",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CXnOw1wAsQvmBKJt",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        592,
+        176
+      ],
+      "id": "bce9bb9d-7487-4212-9dbb-453d76afa51f",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1tqBnemNL10zxOn6z1pbYkNWrL-34YltqzFq6WwsuTdw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "N8NAgent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tqBnemNL10zxOn6z1pbYkNWrL-34YltqzFq6WwsuTdw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        176
+      ],
+      "id": "43c6ba1e-b27b-48b8-ace3-a0d61435c8a1",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X3xgjf7Ps5FQb2QL",
+          "name": "testSheet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1184,
+        -48
+      ],
+      "id": "358c03c2-0bc9-463b-a167-cf67bd293d51",
+      "name": "Send a text message",
+      "webhookId": "ad5281b7-764c-4dd4-a78e-dd897c1fcf1d",
+      "credentials": {
+        "telegramApi": {
+          "id": "suMM9xOcDO5uNJc6",
+          "name": "financeBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1tqBnemNL10zxOn6z1pbYkNWrL-34YltqzFq6WwsuTdw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "N8NAgent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tqBnemNL10zxOn6z1pbYkNWrL-34YltqzFq6WwsuTdw/edit#gid=0"
+        },
+        "startIndex": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Row_Number', ``, 'number') }}",
+        "numberToDelete": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Number_of_Rows_to_Delete', ``, 'number') }}"
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        848,
+        176
+      ],
+      "id": "8e30473f-4024-49da-8ff5-ac0a2e26a6f9",
+      "name": "Delete rows or columns from sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X3xgjf7Ps5FQb2QL",
+          "name": "testSheet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1tqBnemNL10zxOn6z1pbYkNWrL-34YltqzFq6WwsuTdw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "N8NAgent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tqBnemNL10zxOn6z1pbYkNWrL-34YltqzFq6WwsuTdw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "DAY": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('DAY__using_to_match_', ``, 'string') }}",
+            "CATEGORY": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('CATEGORY', ``, 'string') }}",
+            "AMOUNT": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('AMOUNT', ``, 'string') }}",
+            "DETAILS": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('DETAILS', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "DAY"
+          ],
+          "schema": [
+            {
+              "id": "DAY",
+              "displayName": "DAY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CATEGORY",
+              "displayName": "CATEGORY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AMOUNT",
+              "displayName": "AMOUNT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DETAILS",
+              "displayName": "DETAILS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        976,
+        176
+      ],
+      "id": "ef4bd864-ae27-4abe-b15c-916a73b89a53",
+      "name": "Append or update row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X3xgjf7Ps5FQb2QL",
+          "name": "testSheet"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete rows or columns from sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "e4602a80-9783-4304-aee0-4c8b7e1880b6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9c6a64b8921c47ae75cec6fc242769daf8a973c74dfc365b562ebecb01a64781"
+  },
+  "id": "JOqTDzzm0juYFhoL",
+  "tags": []
+}

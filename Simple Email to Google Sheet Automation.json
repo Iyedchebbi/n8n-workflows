@@ -1,0 +1,138 @@
+{
+  "name": "CheckingMail",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -624,
+        -208
+      ],
+      "id": "839d1216-ad0f-4c3b-8e0c-e5d2ababfa70",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "n1OPtYOedTtadOTC",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ie2P_WWFMiFts-aLRbT-4M1yWFFTGnijDbAvAnlJiMs",
+          "mode": "list",
+          "cachedResultName": "MailNotif",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ie2P_WWFMiFts-aLRbT-4M1yWFFTGnijDbAvAnlJiMs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Feuille 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ie2P_WWFMiFts-aLRbT-4M1yWFFTGnijDbAvAnlJiMs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Subject": "={{ $json.Subject }}",
+            "Sender": "={{ $json.From }}",
+            "Body": "={{ $json.snippet }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Sender",
+              "displayName": "Sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Body",
+              "displayName": "Body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -320,
+        -208
+      ],
+      "id": "616a8e15-1244-41db-a920-fc83cab41c99",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BLjxP2Tt85pPYmDx",
+          "name": "MailNotifDoc"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6b212a46-299a-4b36-978c-f4d7020109ac",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9c6a64b8921c47ae75cec6fc242769daf8a973c74dfc365b562ebecb01a64781"
+  },
+  "id": "4bJOMhMeeRnWz6pd",
+  "tags": []
+}

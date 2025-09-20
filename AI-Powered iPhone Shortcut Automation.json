@@ -1,0 +1,192 @@
+{
+  "name": "SiriAiAgent+Tasks",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "066fc202-37b8-453d-ad27-a6cd10cf79e6",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -480,
+        -208
+      ],
+      "id": "669e6345-bdbc-4b30-9267-9c9d847ca609",
+      "name": "Webhook",
+      "webhookId": "066fc202-37b8-453d-ad27-a6cd10cf79e6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=my order is \n< {{ $json.body.Text }} >\n{{ $now }}",
+        "options": {
+          "systemMessage": "As your personal AI assistant for task management and email communication, I'm ready to help. I've noted the following information:\nEmail Addresses & Roles:\n• Manager: chebbiiyad@gmail.com\n• Video Editor: chebbiied@gmail.com\n• Social Media: iyedchebbi18@gmail.com\nTask Management Tool:\n• ClickUp: I will fetch your tasks from here\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        -208
+      ],
+      "id": "58c3cdc7-2248-4179-bb1d-cad6815482a0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        336,
+        -208
+      ],
+      "id": "14457cba-e659-411e-aefb-f4150829a0d8",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false,
+          "ccList": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('CC', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        32
+      ],
+      "id": "62093914-d10c-4c41-8a05-12f25c8afea7",
+      "name": "Send a message in Gmail",
+      "webhookId": "75875036-1ae1-4725-818e-034f097dead6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "n1OPtYOedTtadOTC",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "team": "90121207175",
+        "space": "90125084080",
+        "folder": "90127486938",
+        "list": "901212429173",
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.clickUpTool",
+      "typeVersion": 1,
+      "position": [
+        272,
+        32
+      ],
+      "id": "b46fc0bd-42b7-446c-bb48-d1045d53b6ec",
+      "name": "Get many tasks in ClickUp",
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "QXaIPJkK105MXyLC",
+          "name": "ClickUp account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        16
+      ],
+      "id": "c739b405-1410-4f91-b77b-2d0dc34da1b0",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CXnOw1wAsQvmBKJt",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many tasks in ClickUp": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cc1321c2-eef1-4edd-a49c-84c120962b6d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9c6a64b8921c47ae75cec6fc242769daf8a973c74dfc365b562ebecb01a64781"
+  },
+  "id": "FXUyZr6lruULPBQg",
+  "tags": []
+}
