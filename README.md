@@ -13,3 +13,8 @@ Description: An intelligent expense tracker that uses a Telegram bot to log expe
 # Project 5: Automated Lead Nurturing System
 Description: A complete, end-to-end system that captures new leads from Typeform and enriches their data using a third-party API. It then conditionally adds them to a CRM and sends a personalized email. A separate error-handling workflow ensures system reliability by sending an alert for any failures.
 
+
+# Project 6: Automated Video Generation with VEO3.1
+Description: : An n8n workflow that takes text or image input, sends it to the VEO3.1 model to generate a video, then provides a downloadable link.
+
+
