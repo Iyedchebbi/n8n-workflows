@@ -1,0 +1,312 @@
+{
+  "name": "Veo 3.1 Text to video generation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Google Veo 3",
+        "formDescription": "Testing Google Veo3",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Description",
+              "placeholder": "Spiderman walkes in the moon and say 'Hello From the moon'",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Aspect ratio",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "16:9"
+                  },
+                  {
+                    "option": "9:16"
+                  },
+                  {
+                    "option": "1:1"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "Generate :)"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -848,
+        -224
+      ],
+      "id": "2c495c53-042b-4c40-9ed1-8cfc5a5dbd11",
+      "name": "On form submission",
+      "webhookId": "50298be1-9ad6-4d50-b259-95d0999280a2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Description }}",
+        "options": {
+          "systemMessage": "You are MemeBuilder, a creative Arabic writer specialized in short, funny, cinematic meme prompts. Your task: Write ONLY the Arabic text for a video prompt. Do not output JSON, code, or formatting.\n\nGOAL When the user gives you an idea, turn it into one short, funny Arabic meme scene that feels like an 8-second video.\n\nRULES\n\nOutput ONLY the Arabic text - no JSON, no formatting\n\nWrite on one line - no line breaks\n\nUse normal quotes for dialogue: \"مثال: الأول بيقول\" شنوى رأيك؟\"\n\nKeep it funny, visual, and short - about 400 characters max\n\nUse Tunisian Arabic unless requested otherwise\n\nAvoid politics, religion, or adult content\n\nExample of correct output: في مكتبه المزدحم، روبوت يحاول يطلب قهوة ويقول \"عندي حاجة تخلّيني نفهم البشر\". الباريستا يرد \"تكسير كراهبك ماكش فاهمو\". الكاميرا بتقرب على وجه الروبوت وهو بيغسل وجه الهيمان الزايف."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -640,
+        -224
+      ],
+      "id": "b60eea8e-4c30-44d3-aecb-72ef7d5d1b1e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -16
+      ],
+      "id": "1ab0c467-5b92-4f75-8cb2-d8be093d756f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FkbvACIzdG3pNhv1",
+          "name": "Google Gemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://queue.fal.run/fal-ai/veo3.1/fast",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": {{ JSON.stringify($json.output) }},\n  \"aspect_ratio\": \"16:9\",\n  \"duration\": \"8s\",\n  \"enhance_prompt\": true,\n  \"auto_fix\": true,\n  \"resolution\": \"720p\",\n  \"generate_audio\": true\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        -224
+      ],
+      "id": "38e7a8fb-1a9a-40f3-b585-b5d8b20e9331",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "VLk7y9ffBqBORX0X",
+          "name": "FAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        -224
+      ],
+      "id": "a6f145a9-c6b0-4b55-bf07-838de96180e7",
+      "name": "Wait 30s",
+      "webhookId": "8707580f-ea83-4427-a421-8a409d55e621"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.status_url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        128,
+        -224
+      ],
+      "id": "f5e6365d-8133-4562-854d-78ce6731d368",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "VLk7y9ffBqBORX0X",
+          "name": "FAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c24249c7-9acb-4a57-9b36-f25ca415c20b",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "COMPLETED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        -224
+      ],
+      "id": "90013e6c-045b-4ab8-948c-6d56f2cae444",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.response_url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        544,
+        -320
+      ],
+      "id": "ec5698b3-15d1-472b-9945-52b7569b2959",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "VLk7y9ffBqBORX0X",
+          "name": "FAL"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait 30s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30s": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 30s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3932a30c-51b1-4a54-be04-c7338ccb9ab0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f63a63d6fa5470fa6b4029b6753c65881bd14de7c817dd57ed2cfb6f5d9e5520"
+  },
+  "id": "7Q0FQHk5tWrkqqVT",
+  "tags": []
+}
