@@ -1,0 +1,612 @@
+{
+  "name": "Ads Video Generation with SORA2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1168,
+        -192
+      ],
+      "id": "c807625d-cd95-4313-ad3f-9ed93539ed45",
+      "name": "Telegram Trigger",
+      "webhookId": "a0c883ea-d6b4-4c01-8029-bf040237a5ce",
+      "credentials": {
+        "telegramApi": {
+          "id": "TOi6mGqp0rvmzRpn",
+          "name": "Telegram account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8387a857-a7f4-414b-ad0b-b84417e56477",
+              "leftValue": "={{ $json.msg }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -272,
+        -192
+      ],
+      "id": "6f62fcc0-7eeb-46a5-9ae9-d202901689da",
+      "name": "If",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "amount": 180
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -720,
+        -192
+      ],
+      "id": "213a016b-328b-4b4a-886b-8e3d621b1b13",
+      "name": "180s",
+      "webhookId": "fbc3f218-4a9b-46ec-a9ed-3e5eecc82b81",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "file": "={{ $json.video_url }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        -208
+      ],
+      "id": "f4d7217a-73f8-4e38-a9c7-91cad48d7c9a",
+      "name": "Send a video",
+      "webhookId": "a53029a0-9f48-4fe9-879c-9ffa5ccb8e3d",
+      "credentials": {
+        "telegramApi": {
+          "id": "TOi6mGqp0rvmzRpn",
+          "name": "Telegram account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "Text To Video ( SORA 2 )",
+        "height": 336,
+        "width": 1840,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1200,
+        -288
+      ],
+      "typeVersion": 1,
+      "id": "e4938775-cdcd-4c76-bb9e-1597f8e6e1b2",
+      "name": "Sticky Note",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1184,
+        288
+      ],
+      "id": "3be6606c-a533-4b7d-8160-0159d43ce6f2",
+      "name": "Telegram Trigger1",
+      "webhookId": "a0c883ea-d6b4-4c01-8029-bf040237a5ce",
+      "credentials": {
+        "telegramApi": {
+          "id": "TOi6mGqp0rvmzRpn",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8387a857-a7f4-414b-ad0b-b84417e56477",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        288
+      ],
+      "id": "49767593-32c6-4410-a8bb-6a8942d29aed",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -288,
+        288
+      ],
+      "id": "d5ea7838-662a-4fb5-aa00-79bf828365b6",
+      "name": "180s1",
+      "webhookId": "fbc3f218-4a9b-46ec-a9ed-3e5eecc82b81"
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+        "file": "={{ $json.video_url }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        608,
+        272
+      ],
+      "id": "98c5a92e-cf51-4a41-b359-e60f92a3220d",
+      "name": "Send a video1",
+      "webhookId": "a53029a0-9f48-4fe9-879c-9ffa5ccb8e3d",
+      "credentials": {
+        "telegramApi": {
+          "id": "TOi6mGqp0rvmzRpn",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Image To Video ( SORA 2 )",
+        "height": 432,
+        "width": 2048,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1216,
+        144
+      ],
+      "typeVersion": 1,
+      "id": "474e303e-0efe-439d-964b-0b2481063e25",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/bot{{ $json.botId }}/getFile?file_id={{ $('Telegram Trigger1').item.json.message.photo[2].file_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -736,
+        288
+      ],
+      "id": "c597346f-d1a4-406d-904b-de5e31220fbb",
+      "name": "image path"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: \"sora-2-image-to-video\",\n  input: {\n    prompt: $('Telegram Trigger1').item.json.message.caption,\n    image_urls: [\n      \"https://api.telegram.org/file/bot\" + $('Get BotId').item.json.botId + \"/\" + $('image path').item.json.result.file_path\n    ],\n    aspect_ratio: \"portrait\",\n    n_frames: \"10\",\n    remove_watermark: true\n  }\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -512,
+        288
+      ],
+      "id": "0c4d86c4-c40c-484d-89c2-9461b2f5a51d",
+      "name": "image to video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rusAfA4TQIrxZbIt",
+          "name": "iyedAuth1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sora-2-text-to-video\",\n  \"input\": {\n    \"prompt\": \"{{ $json.message.text }}\",\n    \"n_frames\": \"10\",\n    \"remove_watermark\": true\n  }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -944,
+        -192
+      ],
+      "id": "db1eb888-9117-4dcc-95fe-106de413918d",
+      "name": "text to video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rusAfA4TQIrxZbIt",
+          "name": "iyedAuth1"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -496,
+        -192
+      ],
+      "id": "47751d11-418a-48bb-b6ab-712cccedbdea",
+      "name": "Get Video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rusAfA4TQIrxZbIt",
+          "name": "iyedAuth1"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d0a43a68-6248-46f1-9a9a-296b48dc0968",
+              "name": "botId",
+              "value": "8214288273:AAHcASLCLzsYBteZlzzy3ZpJ-DgZejQ8rF4",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -960,
+        288
+      ],
+      "id": "a6f47777-5ca1-402c-b869-60cccc52a612",
+      "name": "Get BotId"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -64,
+        288
+      ],
+      "id": "7d9ca792-06f7-4580-a27f-ce385a2e4c13",
+      "name": "Get Video1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rusAfA4TQIrxZbIt",
+          "name": "iyedAuth1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "034196d1-edc6-4763-837b-5aaea1f02373",
+              "name": "video_url",
+              "value": "={{JSON.parse($json.data.resultJson).resultUrls[0]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        384,
+        272
+      ],
+      "id": "54fcb444-7206-407e-a2aa-2a222212b3a7",
+      "name": "Get Video Url Parsed"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "034196d1-edc6-4763-837b-5aaea1f02373",
+              "name": "video_url",
+              "value": "={{JSON.parse($json.data.resultJson).resultUrls[0]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -48,
+        -208
+      ],
+      "id": "5b6af24f-a0c9-472c-8e51-58ca39e3be12",
+      "name": "Get Video Url Parsed1",
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "text to video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get Video Url Parsed1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "180s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "180s": {
+      "main": [
+        [
+          {
+            "node": "Get Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Get BotId",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Get Video Url Parsed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "180s1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "180s1": {
+      "main": [
+        [
+          {
+            "node": "Get Video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "image path": {
+      "main": [
+        [
+          {
+            "node": "image to video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "image to video": {
+      "main": [
+        [
+          {
+            "node": "180s1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "text to video": {
+      "main": [
+        [
+          {
+            "node": "180s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get BotId": {
+      "main": [
+        [
+          {
+            "node": "image path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video Url Parsed": {
+      "main": [
+        [
+          {
+            "node": "Send a video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video Url Parsed1": {
+      "main": [
+        [
+          {
+            "node": "Send a video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "719b5193-95a2-4e9c-85fa-01b8c72b9338",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "852d34bce96760cbbd839d925f7b1d253a1baa390204547181d3aaccc4c01dbc"
+  },
+  "id": "jofgotc0DA4syRiV",
+  "tags": []
+}
